@@ -1,9 +1,50 @@
 'use strict';
+const glob = require('glob');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const setMAP = () => {
+    const entry = {
+
+    };
+    const HtmlWebpackPlugins = [];
+    const entryFiles = glob.sync(path.join(__dirname, './src/*/index.js'));
+    Object.keys(entryfiles).map((index) => {
+        const entryFile = entryFiles[index]
+        const match = entryFile.mach(/src\(.*)\/index\.js/)
+        const pageName = match && match[1];
+        entry[pageName] = entryFile
+        htmlWebpackPlugins.push(
+            new HtmlWebpackPlugin({
+                //需要压缩的文件模板
+                template: path.join(__dirname, 'src/${pageName}/index.html'),
+                //压缩后的文件名
+                filename: `${pageName}.html`,
+                //chunk
+                chunks: [pageName],
+                inject: true,
+                minify: {
+                    html5: true,
+                    collapseWhitespace: true,
+                    preserveLineBreaks: false,
+                    minifyCSS: true,
+                    minifyJS: true,
+                    removeComments: false
+                }
+            }),
+        )
+    })
+    return {
+        entry,
+        htmlWebpackPlugins
+    }
+}
+const {
+    entry,
+    htmlWebpackPlugins
+} = setMAP();
 module.exports = {
     //默认false，也就是不开启
     watch: true,
@@ -56,8 +97,8 @@ module.exports = {
                     {
                         loader: 'px2rem-loader',
                         options: {
-                           renUnit:75,
-                           remPrecesion:8
+                            renUnit: 75,
+                            remPrecesion: 8
                         }
                     }
                 ]
@@ -86,23 +127,7 @@ module.exports = {
             assetNameRegExp: /\.css$/g,
             cssProcessor: require('cssnano')
         }),
-        new HtmlWebpackPlugin({
-            //需要压缩的文件模板
-            template: path.join(__dirname, 'src/search.html'),
-            //压缩后的文件名
-            filename: 'search.html',
-            //chunk
-            chunks: ['search'],
-            inject: true,
-            minify: {
-                html5: true,
-                collapseWhitespace: true,
-                preserveLineBreaks: false,
-                minifyCSS: true,
-                minifyJS: true,
-                removeComments: false
-            }
-        }),
+
         new CleanWebpackPlugin()
-    ],
+    ].concat(htmlWebpackPlugins),
 };
