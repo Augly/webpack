@@ -2,12 +2,13 @@
 const glob = require('glob');
 const path = require('path');
 const webpack = require('webpack');
-const CleanWebpackPlugin=require('clean-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+
 const setMAP = () => {
     const entry = {
 
     };
-    const HtmlWebpackPlugins = [];
+    const htmlWebpackPlugins = [];
     const entryFiles = glob.sync(path.join(__dirname, './src/*/index.js'));
     Object.keys(entryfiles).map((index) => {
         const entryFile = entryFiles[index]
@@ -55,6 +56,7 @@ module.exports = {
         //判断文件是否发生变化是通过不停询问系统指定文件有没有变化实现的，默认每秒问1000次
         poll: 1000
     },
+
     entry: entry, //打包文件路径
     output: {
         path: path.join(__dirname, 'dist'), //输出文件路径
@@ -69,27 +71,25 @@ module.exports = {
             },
             {
                 test: /.css$/,
-                use: [
-                   {
-                    loader: 'style-loader',
-                    options: {
-                        insertAt:'top',  //将样式插入到<head>
-                        singletion:true  //将所有的style标签合并成一个
-                    }
-                   },
+                use: [{
+                        loader: 'style-loader',
+                        options: {
+                            insertAt: 'top', //将样式插入到<head>
+                            singletion: true //将所有的style标签合并成一个
+                        }
+                    },
                     'css-loader',
                 ]
             },
             {
                 test: /.less$/,
-                user: [
-                    {
+                user: [{
                         loader: 'style-loader',
                         options: {
-                            insertAt:'top',  //将样式插入到<head>
-                            singletion:true  //将所有的style标签合并成一个
+                            insertAt: 'top', //将样式插入到<head>
+                            singletion: true //将所有的style标签合并成一个
                         }
-                       },
+                    },
                     'css-loader',
                     'less-loader'
                 ]
@@ -118,5 +118,5 @@ module.exports = {
         contentBase: "./dist",
         hot: true
     },
-    devtool:'eval'
+    devtool: 'eval'
 };

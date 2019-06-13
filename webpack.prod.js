@@ -5,11 +5,12 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin')
 const setMAP = () => {
     const entry = {
 
     };
-    const HtmlWebpackPlugins = [];
+    const htmlWebpackPlugins = [];
     const entryFiles = glob.sync(path.join(__dirname, './src/*/index.js'));
     Object.keys(entryfiles).map((index) => {
         const entryFile = entryFiles[index]
@@ -23,7 +24,7 @@ const setMAP = () => {
                 //压缩后的文件名
                 filename: `${pageName}.html`,
                 //chunk
-                chunks: [pageName],
+                chunks: [pageName, 'commons'],
                 inject: true,
                 minify: {
                     html5: true,
@@ -57,10 +58,8 @@ module.exports = {
         //判断文件是否发生变化是通过不停询问系统指定文件有没有变化实现的，默认每秒问1000次
         poll: 1000
     },
-    entry: {
-        index: './src/index.js',
-        search: './src/search.js'
-    }, //打包文件路径
+
+    entry: entry, //打包文件路径
     output: {
         path: path.join(__dirname, 'dist'), //输出文件路径
         filename: '[name]_[chunkhash:8].js' //输出文件名
@@ -128,6 +127,26 @@ module.exports = {
             cssProcessor: require('cssnano')
         }),
 
-        new CleanWebpackPlugin()
+        new CleanWebpackPlugin(),
+        // new HtmlWebpackExternalsPlugin({
+        //     externals: [{
+        //         module: 'vue',
+        //         entry: 'https://unpkg.com/vue@2.6.10/dist/vue.js',
+        //         global: 'Vue'
+        //     }]
+        // })
     ].concat(htmlWebpackPlugins),
+    //提取公共文件
+    optimization: {
+        splitChunks: {
+            minSize: 0,
+            cacheGroups: {
+                commons: {
+                    name: 'commons',
+                    chunks: 'all',
+                    minChunks: 2
+                },
+            }
+        }
+    },
 };
